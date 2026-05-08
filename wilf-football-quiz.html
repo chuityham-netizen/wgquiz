@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Grand Wilf Football Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;900&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E8500A;
+    --orange-light: #FF6B2B;
+    --dark: #0A0A0C;
+    --dark2: #111115;
+    --dark3: #1A1A20;
+    --dark4: #222228;
+    --white: #FFFFFF;
+    --grey: #8A8A95;
+    --grey-light: #C0C0CC;
+    --border: rgba(255,255,255,0.08);
+    --correct: #22C55E;
+    --wrong: #EF4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%;
+    height: 64px;
+    background: rgba(10,10,12,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--white);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo span { color: var(--orange); }
+  .nav-ball {
+    width: 28px; height: 28px;
+    background: var(--orange);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--grey-light);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--orange); }
+  .nav-score-display {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    color: var(--grey);
+    letter-spacing: 1px;
+  }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--white); transition: 0.3s; }
+
+  /* HERO */
+  #home-screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0A0A0C 0%, #1a0a05 50%, #0A0A0C 100%);
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(232,80,10,0.12) 0%, transparent 60%);
+  }
+  .grid-overlay {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 100px 5% 60px;
+    max-width: 700px;
+  }
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--orange);
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .hero-title .accent { color: var(--orange); }
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--grey-light);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+  .hero-stats {
+    display: flex; gap: 40px;
+    margin-bottom: 44px;
+  }
+  .stat-item { }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--grey);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--orange);
+    color: var(--white);
+    border: none;
+    padding: 16px 36px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-primary:hover {
+    background: var(--orange-light);
+    transform: translateY(-2px);
+  }
+
+  /* CATEGORY GRID */
+  .categories-bar {
+    position: relative; z-index: 2;
+    padding: 0 5% 60px;
+  }
+  .categories-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 16px;
+  }
+  .categories-grid {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .cat-pill {
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    background: var(--dark3);
+    color: var(--grey-light);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat-pill:hover, .cat-pill.selected {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: rgba(232,80,10,0.1);
+  }
+
+  /* SELECT SCREEN */
+  #select-screen {
+    display: none;
+    min-height: 100vh;
+    padding: 100px 5% 60px;
+  }
+  .section-header {
+    margin-bottom: 48px;
+  }
+  .section-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-eyebrow::before { content: ''; width: 30px; height: 1px; background: var(--orange); }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .section-title .accent { color: var(--orange); }
+
+  .quiz-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .quiz-card {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .quiz-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .quiz-card:hover { border-color: rgba(232,80,10,0.4); transform: translateY(-4px); background: var(--dark4); }
+  .quiz-card:hover::before { transform: scaleX(1); }
+  .card-flag { font-size: 2.5rem; margin-bottom: 16px; }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .card-desc { font-size: 0.85rem; color: var(--grey); line-height: 1.5; margin-bottom: 20px; }
+  .card-meta {
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+  .card-meta .dot { color: var(--orange); }
+  .diff-badge {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .diff-easy { background: rgba(34,197,94,0.15); color: #22C55E; }
+  .diff-medium { background: rgba(234,179,8,0.15); color: #EAB308; }
+  .diff-hard { background: rgba(239,68,68,0.15); color: #EF4444; }
+
+  /* QUIZ SCREEN */
+  #quiz-screen {
+    display: none;
+    min-height: 100vh;
+    padding: 80px 5% 60px;
+  }
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 40px;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .quiz-category {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+  .quiz-meta {
+    display: flex; gap: 24px; align-items: center;
+  }
+  .q-counter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+  .q-counter strong { color: var(--orange); font-size: 1.1rem; }
+  .score-chip {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    padding: 8px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .score-chip strong { color: var(--orange); }
+
+  .progress-wrap { margin-bottom: 40px; }
+  .progress-bar {
+    height: 3px;
+    background: var(--dark4);
+    position: relative;
+  }
+  .progress-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: var(--orange);
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--grey);
+    letter-spacing: 1px;
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+  }
+
+  .question-card {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    padding: 40px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .q-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    top: 16px; right: 24px;
+    line-height: 1;
+    user-select: none;
+  }
+  .question-text {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.5;
+    max-width: 680px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .option-btn {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 18px 20px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: all 0.2s;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--orange);
+    background: rgba(232,80,10,0.08);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(34,197,94,0.12);
+    color: var(--correct);
+  }
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(239,68,68,0.1);
+    color: var(--wrong);
+  }
+  .option-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: var(--orange);
+    min-width: 20px;
+    flex-shrink: 0;
+  }
+  .option-btn.correct .option-letter { color: var(--correct); }
+  .option-btn.wrong .option-letter { color: var(--wrong); }
+
+  .feedback-bar {
+    padding: 16px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    display: none;
+    align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .feedback-bar.show { display: flex; }
+  .feedback-bar.correct-fb { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: var(--correct); }
+  .feedback-bar.wrong-fb { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--wrong); }
+
+  .quiz-actions {
+    display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;
+  }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--grey-light);
+    padding: 14px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--grey-light); color: var(--white); }
+
+  /* RESULT SCREEN */
+  #result-screen {
+    display: none;
+    min-height: 100vh;
+    padding: 100px 5% 60px;
+  }
+  .result-container {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .result-icon {
+    font-size: 5rem;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .result-title .accent { color: var(--orange); }
+  .result-subtitle { color: var(--grey-light); font-size: 1rem; margin-bottom: 40px; }
+  .result-score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 15vw, 9rem);
+    color: var(--orange);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .result-score-label { color: var(--grey); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px; }
+  .result-breakdown {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .breakdown-item {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    padding: 24px 16px;
+  }
+  .breakdown-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .breakdown-num.green { color: var(--correct); }
+  .breakdown-num.red { color: var(--wrong); }
+  .breakdown-label { font-size: 0.75rem; color: var(--grey); letter-spacing: 1px; text-transform: uppercase; }
+  .result-message {
+    font-size: 1.1rem;
+    color: var(--grey-light);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* LEADERBOARD-STYLE STREAK */
+  .streak-bar {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .streak-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+  .streak-dots { display: flex; gap: 6px; }
+  .streak-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--dark4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    transition: all 0.3s;
+  }
+  .streak-dot.hit { background: var(--orange); border-color: var(--orange); }
+  .streak-dot.miss { background: rgba(239,68,68,0.3); border-color: var(--wrong); }
+
+  /* Mobile menu */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 64px; left: 0; right: 0;
+    background: var(--dark2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 5%;
+    z-index: 99;
+    flex-direction: column; gap: 16px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: var(--grey-light);
+    text-decoration: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mobile-menu a:hover { color: var(--orange); }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .fade-up { animation: fadeUp 0.5s ease forwards; }
+  .delay-1 { animation-delay: 0.1s; opacity: 0; }
+  .delay-2 { animation-delay: 0.2s; opacity: 0; }
+  .delay-3 { animation-delay: 0.3s; opacity: 0; }
+  .delay-4 { animation-delay: 0.4s; opacity: 0; }
+  .delay-5 { animation-delay: 0.5s; opacity: 0; }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .options-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; }
+    .result-breakdown { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .question-card { padding: 24px 20px; }
+    .quiz-header { flex-direction: column; align-items: flex-start; }
+    .streak-dots { flex-wrap: wrap; }
+    .btn-primary { width: 100%; justify-content: center; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-content { padding: 90px 4% 40px; }
+    .result-breakdown { grid-template-columns: 1fr; }
+    .categories-bar { padding: 0 4% 40px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-ball">⚽</div>
+    THE GRAND <span>WILF</span>
+  </div>
+  <div class="nav-links">
+    <a onclick="showHome()" class="active" id="nav-home">Home</a>
+    <a onclick="showSelect()" id="nav-quiz">Quiz</a>
+    <a onclick="showScoreboard()" id="nav-scores">Scores</a>
+  </div>
+  <div class="nav-score-display" id="nav-score-display">BEST: <strong id="best-score-nav">—</strong></div>
+  <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a onclick="showHome(); toggleMenu()">Home</a>
+  <a onclick="showSelect(); toggleMenu()">Quiz</a>
+  <a onclick="showScoreboard(); toggleMenu()">Scores</a>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home-screen">
+  <div class="hero-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow fade-up delay-1">Let's find out</div>
+    <h1 class="hero-title fade-up delay-2">THE GRAND<br><span class="accent">WILF</span><br>FOOTBALL<br>QUIZ</h1>
+    <p class="hero-desc fade-up delay-3">Test your football knowledge across five iconic competitions. Premier League, Bundesliga, La Liga, World Cup & the Euros. 400 questions. One true football brain.</p>
+    <div class="hero-stats fade-up delay-4">
+      <div class="stat-item">
+        <div class="stat-num">400</div>
+        <div class="stat-label">Questions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">80</div>
+        <div class="stat-label">Per Round</div>
+      </div>
+    </div>
+    <button class="btn-primary fade-up delay-5" onclick="showSelect()">
+      START QUIZ &#8594;
+    </button>
+  </div>
+  <div class="categories-bar fade-up delay-5">
+    <div class="categories-label">Choose your battleground</div>
+    <div class="categories-grid">
+      <div class="cat-pill" onclick="startQuiz('premier-league')">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+      <div class="cat-pill" onclick="startQuiz('bundesliga')">🇩🇪 Bundesliga</div>
+      <div class="cat-pill" onclick="startQuiz('la-liga')">🇪🇸 La Liga</div>
+      <div class="cat-pill" onclick="startQuiz('world-cup')">🌍 World Cup</div>
+      <div class="cat-pill" onclick="startQuiz('euros')">🇪🇺 Euros</div>
+    </div>
+  </div>
+</div>
+
+<!-- SELECT SCREEN -->
+<div id="select-screen">
+  <div class="section-header fade-up delay-1">
+    <div class="section-eyebrow">Pick your category</div>
+    <h2 class="section-title">CHOOSE YOUR<br><span class="accent">BATTLEGROUND</span></h2>
+  </div>
+  <div class="quiz-cards">
+    <div class="quiz-card fade-up delay-1" onclick="startQuiz('premier-league')">
+      <div class="card-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+      <div class="card-title">Premier League</div>
+      <div class="card-desc">The most-watched league in the world. From Man Utd legends to Liverpool miracles — do you know your stuff?</div>
+      <div class="card-meta">
+        <span>80 Questions</span>
+        <span class="dot">●</span>
+        <span class="diff-badge diff-medium">Mixed</span>
+      </div>
+    </div>
+    <div class="quiz-card fade-up delay-2" onclick="startQuiz('bundesliga')">
+      <div class="card-flag">🇩🇪</div>
+      <div class="card-title">Bundesliga</div>
+      <div class="card-desc">Bayern Munich, Dortmund, and the most atmospheric stadiums on earth. Show your German football knowledge.</div>
+      <div class="card-meta">
+        <span>80 Questions</span>
+        <span class="dot">●</span>
+        <span class="diff-badge diff-medium">Mixed</span>
+      </div>
+    </div>
+    <div class="quiz-card fade-up delay-3" onclick="startQuiz('la-liga')">
+      <div class="card-flag">🇪🇸</div>
+      <div class="card-title">La Liga</div>
+      <div class="card-desc">El Clásico, Messi vs Ronaldo, Barca vs Real. The most glamorous league in football history.</div>
+      <div class="card-meta">
+        <span>80 Questions</span>
+        <span class="dot">●</span>
+        <span class="diff-badge diff-hard">Hard</span>
+      </div>
+    </div>
+    <div class="quiz-card fade-up delay-4" onclick="startQuiz('world-cup')">
+      <div class="card-flag">🌍</div>
+      <div class="card-title">World Cup</div>
+      <div class="card-desc">The greatest show on Earth. From 1930 to today — the moments that defined football for billions of fans worldwide.</div>
+      <div class="card-meta">
+        <span>80 Questions</span>
+        <span class="dot">●</span>
+        <span class="diff-badge diff-medium">Mixed</span>
+      </div>
+    </div>
+    <div class="quiz-card fade-up delay-5" onclick="startQuiz('euros')">
+      <div class="card-flag">🇪🇺</div>
+      <div class="card-title">UEFA Euros</div>
+      <div class="card-desc">European Championship glory. Shocks, comebacks, penalties and legends. How well do you know continental football?</div>
+      <div class="card-meta">
+        <span>80 Questions</span>
+        <span class="dot">●</span>
+        <span class="diff-badge diff-medium">Mixed</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-category" id="quiz-cat-label">Premier League</div>
+    <div class="quiz-meta">
+      <div class="q-counter">Q <strong id="q-current">1</strong> / <span id="q-total">80</span></div>
+      <div class="score-chip">Score: <strong id="score-display">0</strong></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Question 1 of 80</div>
+  </div>
+
+  <div class="streak-bar">
+    <div class="streak-label">Last 10</div>
+    <div class="streak-dots" id="streak-dots"></div>
+  </div>
+
+  <div class="question-card">
+    <div class="q-number" id="q-bg-num">01</div>
+    <div class="question-text" id="question-text">Loading question...</div>
+  </div>
+
+  <div class="options-grid" id="options-grid"></div>
+
+  <div class="feedback-bar" id="feedback-bar">
+    <span id="feedback-icon">✓</span>
+    <span id="feedback-text">Correct!</span>
+  </div>
+
+  <div class="quiz-actions">
+    <button class="btn-secondary" onclick="showSelect()">← Back</button>
+    <button class="btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+    <button class="btn-primary" id="finish-btn" onclick="showResults()" style="display:none">See Results →</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen">
+  <div class="result-container">
+    <span class="result-icon" id="result-icon">🏆</span>
+    <h2 class="result-title" id="result-heading">WELL <span class="accent">DONE!</span></h2>
+    <p class="result-subtitle" id="result-sub">You've completed the quiz</p>
+    <div class="result-score-big" id="result-pct">75%</div>
+    <div class="result-score-label" id="result-score-label">Score: 60 / 80</div>
+    <div class="result-breakdown">
+      <div class="breakdown-item">
+        <div class="breakdown-num green" id="res-correct">0</div>
+        <div class="breakdown-label">Correct</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num red" id="res-wrong">0</div>
+        <div class="breakdown-label">Wrong</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="res-streak" style="color:var(--orange)">0</div>
+        <div class="breakdown-label">Best Streak</div>
+      </div>
+    </div>
+    <p class="result-message" id="result-message">Great effort!</p>
+    <div class="result-actions">
+      <button class="btn-secondary" onclick="showSelect()">Try Another Category</button>
+      <button class="btn-primary" onclick="restartQuiz()">Play Again ↺</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// QUESTION BANK — 400 questions, 80 per category
+// ============================================================
+const QUESTIONS = {
+  'premier-league': [
+    {q:"Who is the all-time top scorer in Premier League history?",o:["Alan Shearer","Wayne Rooney","Andrew Cole","Frank Lampard"],a:0},
+    {q:"Which club won the first ever Premier League title in 1992–93?",o:["Manchester United","Arsenal","Blackburn Rovers","Leeds United"],a:0},
+    {q:"Who scored the iconic 'Agüeroooo' goal to win Man City the title in 2012?",o:["Carlos Tevez","Edin Džeko","Sergio Agüero","Mario Balotelli"],a:2},
+    {q:"Which club went an entire Premier League season unbeaten in 2003–04?",o:["Manchester United","Chelsea","Arsenal","Liverpool"],a:2},
+    {q:"How many Premier League goals did Thierry Henry score in total?",o:["174","175","176","177"],a:0},
+    {q:"Which goalkeeper has kept the most clean sheets in Premier League history?",o:["Peter Schmeichel","David Seaman","Pepe Reina","David James"],a:3},
+    {q:"In which year did Chelsea win their first Premier League title?",o:["2002","2003","2004","2005"],a:3},
+    {q:"Who managed Arsenal's Invincibles season?",o:["George Graham","Arsène Wenger","Pat Rice","Bruce Rioch"],a:1},
+    {q:"Which player has made the most Premier League appearances?",o:["Ryan Giggs","Gareth Barry","James Milner","Frank Lampard"],a:1},
+    {q:"Which club holds the record for the biggest ever Premier League win (9-0)?",o:["Manchester United","Leicester City","Southampton","Ipswich Town"],a:1},
+    {q:"Who scored the fastest ever Premier League hat-trick (2 mins 56 secs)?",o:["Robbie Fowler","Sadio Mané","Alan Shearer","Harry Kane"],a:1},
+    {q:"How many times did Sir Alex Ferguson win the Premier League?",o:["11","12","13","14"],a:2},
+    {q:"Which player won the most Premier League Golden Boot awards?",o:["Andrew Cole","Thierry Henry","Alan Shearer","Harry Kane"],a:2},
+    {q:"What was the nickname of the Blackburn Rovers striker who helped them win the 1994–95 title?",o:["The SAS","The Deadly Duo","The Rovers Strike Force","Twin Towers"],a:0},
+    {q:"In which season did Leicester City famously win the Premier League?",o:["2014–15","2015–16","2016–17","2013–14"],a:1},
+    {q:"Who is Leicester's all-time top Premier League scorer from their title-winning campaign (24 goals)?",o:["Andy King","Marc Albrighton","Riyad Mahrez","Jamie Vardy"],a:3},
+    {q:"Which club has been relegated from the Premier League the most times?",o:["Sunderland","Leicester City","Crystal Palace","West Bromwich Albion"],a:0},
+    {q:"Who was the first player to score 100 Premier League goals?",o:["Les Ferdinand","Andrew Cole","Alan Shearer","Dwight Yorke"],a:1},
+    {q:"Which goalkeeper saved the most penalties in a single Premier League season (5, 2012–13)?",o:["Tim Howard","Asmir Begović","Jussi Jääskeläinen","David de Gea"],a:2},
+    {q:"Who holds the record for the most Premier League assists?",o:["Frank Lampard","Cesc Fàbregas","Ryan Giggs","Wayne Rooney"],a:1},
+    {q:"Which ground is famous for the 'Stretford End'?",o:["Anfield","Goodison Park","Old Trafford","Elland Road"],a:2},
+    {q:"Which manager led Blackburn Rovers to their only Premier League title?",o:["Kenny Dalglish","Bobby Gould","Brian Kidd","Roy Hodgson"],a:0},
+    {q:"Who scored a backheel flick goal for Man United against Man City in the 2010–11 derby?",o:["Dimitar Berbatov","Wayne Rooney","Nani","Michael Owen"],a:1},
+    {q:"Which club went the entire 2007–08 season without being beaten at home in the PL?",o:["Chelsea","Arsenal","Manchester United","Liverpool"],a:2},
+    {q:"Who has won the most Premier League Manager of the Month awards?",o:["Arsène Wenger","José Mourinho","Sir Alex Ferguson","Pep Guardiola"],a:2},
+    {q:"Which stadium holds the most Premier League fans (capacity)?",o:["Anfield","Old Trafford","Tottenham Hotspur Stadium","Manchester City's Etihad"],a:1},
+    {q:"Who scored Man United's winning goal in the famous 1999 Champions League Final?",o:["Andy Cole","Dwight Yorke","Teddy Sheringham","Ole Gunnar Solskjær"],a:3},
+    {q:"In which year was the Premier League rebranded from Division One?",o:["1990","1991","1992","1993"],a:2},
+    {q:"Which club did Eric Cantona join before Manchester United?",o:["Marseille","Nottingham Forest","Leeds United","Sheffield Wednesday"],a:2},
+    {q:"Who was top scorer in the first Premier League season (1992–93)?",o:["Teddy Sheringham","Les Ferdinand","Alan Shearer","Ian Wright"],a:0},
+    {q:"Who scored Liverpool's famous 'bounce goal' winner at the San Siro in 2021?",o:["Mohamed Salah","Jordan Henderson","Roberto Firmino","Divock Origi"],a:0},
+    {q:"Which club has been Premier League champions the most times?",o:["Arsenal","Chelsea","Liverpool","Manchester United"],a:3},
+    {q:"What Premier League record did Mo Salah set in the 2017–18 season?",o:["Most assists","Most goals (32) in a 38-game season","First player to win Golden Boot 3 times","Most dribbles"],a:1},
+    {q:"Who is the only player to win the Premier League with three different clubs?",o:["Nicolas Anelka","Andy Cole","Carlos Tevez","Kolo Touré"],a:0},
+    {q:"Which team scored 106 Premier League goals in a single season (2017–18)?",o:["Liverpool","Manchester City","Tottenham","Chelsea"],a:1},
+    {q:"Who became the youngest player to score a Premier League hat-trick?",o:["Michael Owen","Wayne Rooney","Robbie Fowler","Marcus Rashford"],a:0},
+    {q:"Which referee has awarded the most Premier League red cards?",o:["Mike Dean","Howard Webb","Graham Poll","Mark Clattenburg"],a:0},
+    {q:"In the famous 'Battle of Old Trafford' in 2003, how many red cards were shown?",o:["3","4","5","6"],a:0},
+    {q:"Who scored the only goal in the 2002 FA Cup Final for Arsenal vs Chelsea?",o:["Robert Pires","Thierry Henry","Sylvain Wiltord","Ray Parlour"],a:3},
+    {q:"Which striker scored 34 goals in the 1993–94 season for Newcastle?",o:["Andy Cole","Les Ferdinand","Alan Shearer","Peter Beardsley"],a:0},
+    {q:"Which club spent a record 36 seasons in the top flight continuously (at their longest stretch)?",o:["Arsenal","Everton","Liverpool","Aston Villa"],a:1},
+    {q:"Who was Man City's first Premier League title-winning captain in 2012?",o:["Vincent Kompany","Carlos Tevez","Yaya Touré","Pablo Zabaleta"],a:0},
+    {q:"Which was the first club from outside the 'big six' to finish in the top 4 in the Premier League era?",o:["Ipswich Town","Leeds United","Newcastle United","Blackburn Rovers"],a:2},
+    {q:"Who is the all-time PL record scorer for Liverpool?",o:["Steven Gerrard","Robbie Fowler","Ian Rush","Mohamed Salah"],a:3},
+    {q:"Which manager won the Premier League title with two different clubs?",o:["José Mourinho","Pep Guardiola","Kenny Dalglish","Carlo Ancelotti"],a:0},
+    {q:"How many points did Man City accumulate in their record-breaking 2017–18 season?",o:["95","96","97","98"],a:2},
+    {q:"Who knocked Arsenal out of the Premier League title race with a famous last-minute winner at Anfield in 2009?",o:["Yossi Benayoun","Fernando Torres","Steven Gerrard","Dirk Kuyt"],a:0},
+    {q:"Who scored a remarkable solo goal for Man United vs Arsenal in the 1999 FA Cup semi-final?",o:["Roy Keane","Ryan Giggs","Dwight Yorke","Peter Schmeichel"],a:1},
+    {q:"Which player scored the first ever Premier League goal?",o:["Brian Deane","Ian Wright","Mark Hughes","Les Ferdinand"],a:0},
+    {q:"Which club won back-to-back PL titles in 2005–06 and 2006–07?",o:["Arsenal","Chelsea","Manchester United","Liverpool"],a:2},
+    {q:"Who was Chelsea's top scorer in the 2004–05 Premier League season?",o:["Eidur Gudjohnsen","Didier Drogba","Frank Lampard","Damien Duff"],a:2},
+    {q:"Who scored the goal that ended Liverpool's 30-year wait for the league title in 2019–20?",o:["Roberto Firmino","Sadio Mané","Jordan Henderson","James Milner"],a:0},
+    {q:"Which stadium is nicknamed 'The Theatre of Dreams'?",o:["Anfield","Stamford Bridge","Old Trafford","Goodison Park"],a:2},
+    {q:"What is the capacity of Wembley Stadium (used for PL Play-off finals)?",o:["80,000","85,000","86,000","90,000"],a:2},
+    {q:"Which country produced the most Premier League players in its history?",o:["Republic of Ireland","France","England","Scotland"],a:2},
+    {q:"Who became the most expensive British footballer when he joined Manchester City in 2016?",o:["Dele Alli","John Stones","Raheem Sterling","Kyle Walker"],a:1},
+    {q:"Which team set the record for the longest unbeaten home run in Premier League history?",o:["Manchester United","Chelsea","Liverpool","Arsenal"],a:3},
+    {q:"Who scored a famous last-minute header to save Arsenal's unbeaten run against Liverpool in 2004?",o:["Ashley Cole","Sol Campbell","Robert Pires","Thierry Henry"],a:1},
+    {q:"Which club did Jack Grealish join for a British record fee of £100m in 2021?",o:["Chelsea","Liverpool","Manchester United","Manchester City"],a:3},
+    {q:"What record did Erling Haaland set in his debut Premier League season (2022–23)?",o:["Most goals in a calendar year","Most PL goals in one season (36)","Most hat-tricks (5)","All of the above"],a:3},
+    {q:"Which club had the PL's highest ever points tally at relegation (31 pts)?",o:["West Brom","Sunderland","Norwich","Crystal Palace"],a:0},
+    {q:"Who was Spurs' top scorer in their 2016–17 PL season when they finished runners-up?",o:["Dele Alli","Son Heung-min","Harry Kane","Christian Eriksen"],a:2},
+    {q:"Which goalkeeper made a record 14 penalties saves in the Premier League?",o:["Mark Schwarzer","Shay Given","Brad Friedel","Peter Schmeichel"],a:0},
+    {q:"Who scored the 'Panenka' penalty for Chelsea in the 2012 Champions League Final shootout?",o:["Juan Mata","Frank Lampard","Didier Drogba","Ashley Cole"],a:2},
+    {q:"Which decade saw the most different Premier League champions?",o:["1990s","2000s","2010s","2020s"],a:2},
+    {q:"Who is the PL's youngest ever scorer (16 years, 271 days)?",o:["Michael Owen","Jack Wilshere","James Milner","Cesc Fàbregas"],a:2},
+    {q:"Which club won the inaugural Championship play-off final in 2004 to gain promotion?",o:["West Ham","Sunderland","Crystal Palace","Millwall"],a:2},
+    {q:"Who was the first overseas manager to win the Premier League?",o:["Claudio Ranieri","Arsène Wenger","Gérard Houllier","Carlo Ancelotti"],a:1},
+    {q:"Which player holds the record for most Premier League red cards?",o:["Roy Keane","Richard Dunne","Patrick Vieira","Duncan Ferguson"],a:1},
+    {q:"What famous gesture did Eric Cantona perform against a Crystal Palace fan in 1995?",o:["Kung fu kick","Head butt","Spat at","Elbowed"],a:0},
+    {q:"Which team scored in 55 consecutive Premier League matches?",o:["Arsenal","Liverpool","Chelsea","Manchester United"],a:3},
+    {q:"Which club earned the nickname 'The Crazy Gang' in the late 1980s?",o:["Wimbledon","Brentford","Bournemouth","Crystal Palace"],a:0},
+    {q:"Who scored two goals in four minutes as a sub to complete Man United's comeback vs Sheffield United in 2023?",o:["Marcus Rashford","Scott McTominay","Rasmus Højlund","Bruno Fernandes"],a:1},
+    {q:"Which team famously beat Man United 6-1 at Old Trafford in 2011?",o:["Liverpool","Arsenal","Chelsea","Manchester City"],a:3},
+    {q:"Whose Premier League goal drought in 2021 became infamous, lasting over 1000 minutes?",o:["Alexandre Lacazette","Pierre-Emerick Aubameyang","Romelu Lukaku","Timo Werner"],a:2},
+    {q:"Which player holds the PL record for most shots in one season?",o:["Wayne Rooney","Harry Kane","Cristiano Ronaldo","Andrew Cole"],a:1},
+    {q:"Who scored Arsenal's 99th-minute equaliser against Liverpool in 2023 to maintain their title push?",o:["Leandro Trossard","Gabriel Martinelli","Bukayo Saka","Rob Holding"],a:0},
+    {q:"In which season did all 'big six' clubs finish in the top 6 for the first time?",o:["2015–16","2016–17","2017–18","2018–19"],a:2},
+    {q:"Which Premier League club plays at Turf Moor?",o:["Burnley","Blackburn Rovers","Preston","Bolton Wanderers"],a:0},
+  ],
+
+  'bundesliga': [
+    {q:"Which club has won the most Bundesliga titles in history?",o:["Borussia Dortmund","Werder Bremen","Bayern Munich","Borussia Mönchengladbach"],a:2},
+    {q:"How many consecutive Bundesliga titles did Bayern Munich win between 2013 and 2023?",o:["9","10","11","8"],a:2},
+    {q:"Who is the all-time top scorer in Bundesliga history?",o:["Robert Lewandowski","Gerd Müller","Uwe Seeler","Karl-Heinz Rummenigge"],a:1},
+    {q:"Which stadium is nicknamed 'Der Klassiker' venue and is home to Borussia Dortmund?",o:["Allianz Arena","Red Bull Arena","Signal Iduna Park","Olympiastadion"],a:2},
+    {q:"What is the capacity of Borussia Dortmund's Signal Iduna Park standing terrace (the Yellow Wall)?",o:["20,000","24,000","25,000","28,000"],a:1},
+    {q:"Who set the record for most goals in a single Bundesliga season (40 in 1971–72)?",o:["Robert Lewandowski","Gerd Müller","Dieter Müller","Jupp Heynckes"],a:1},
+    {q:"Who scored the famous last-minute winner for Dortmund in the 2011–12 title-winning season?",o:["Mario Götze","Robert Lewandowski","Jakub Błaszczykowski","Marco Reus"],a:0},
+    {q:"Which club did Dortmund edge out in the 2011–12 title race?",o:["Bayern Munich","Schalke","Borussia Mönchengladbach","Bayer Leverkusen"],a:0},
+    {q:"Who managed Bayern Munich to their historic 2012–13 Treble?",o:["Pep Guardiola","Hansi Flick","Louis van Gaal","Jupp Heynckes"],a:3},
+    {q:"Which Bundesliga club plays in Leipzig?",o:["FC Schalke","RB Leipzig","Hamburger SV","VfB Stuttgart"],a:1},
+    {q:"Who holds the record for most Bundesliga appearances?",o:["Oliver Kahn","Sepp Maier","Manfred Kaltz","Karl-Heinz Körbel"],a:3},
+    {q:"Which club was in the Bundesliga for every single season of its existence until their relegation in 2018?",o:["Borussia Dortmund","Hamburger SV","Werder Bremen","Schalke 04"],a:1},
+    {q:"Which player scored 41 Bundesliga goals in the 2020–21 season?",o:["Erling Haaland","Thomas Müller","Robert Lewandowski","Serge Gnabry"],a:2},
+    {q:"In which year was the Bundesliga founded?",o:["1958","1963","1968","1972"],a:1},
+    {q:"Which club won the Bundesliga title in 2023–24 — ending Bayern's dominance?",o:["Bayer Leverkusen","Borussia Dortmund","RB Leipzig","Freiburg"],a:0},
+    {q:"Which manager led Bayer Leverkusen to their historic unbeaten Bundesliga season in 2023–24?",o:["Roger Schmidt","Rudi Völler","Xabi Alonso","Tayfun Korkut"],a:2},
+    {q:"Who is Bayern Munich's all-time leading scorer?",o:["Gerd Müller","Robert Lewandowski","Karl-Heinz Rummenigge","Sepp Maier"],a:0},
+    {q:"What is the name of Bayern Munich's stadium?",o:["Olympiastadion","Signal Iduna Park","Allianz Arena","Mercedes-Benz Arena"],a:2},
+    {q:"Which Bundesliga club has the nickname 'Die Werkself' (The Factory Team)?",o:["Wolfsburg","Bayer Leverkusen","Augsburg","Hoffenheim"],a:1},
+    {q:"Who did Borussia Dortmund sell to Bayern Munich in what became a controversial transfer in 2013?",o:["Ilkay Gündoğan","Robert Lewandowski","Mario Götze","Mats Hummels"],a:2},
+    {q:"Which city hosts the Derby known as the 'Revierderby'?",o:["Munich and Hamburg","Dortmund and Gelsenkirchen","Berlin","Frankfurt and Darmstadt"],a:1},
+    {q:"Who was Bundesliga top scorer in 2019–20?",o:["Timo Werner","Robert Lewandowski","Erling Haaland","Serge Gnabry"],a:1},
+    {q:"How many Bundesliga clubs were there when it started in 1963–64?",o:["14","16","18","20"],a:1},
+    {q:"Which club did Erling Haaland play for in the Bundesliga before joining Man City?",o:["RB Leipzig","Bayern Munich","Borussia Dortmund","Schalke"],a:2},
+    {q:"What shirt number did Gerd Müller famously wear at Bayern Munich?",o:["7","9","10","11"],a:1},
+    {q:"Who was the first non-German winner of the Bundesliga top scorer award?",o:["Jupp Heynckes","Dieter Müller","Manfred Burgsmüller","Bob Latchford"],a:2},
+    {q:"Which Bundesliga coach famously said 'Ich habe fertig' (I have finished)?",o:["Jupp Heynckes","Giovanni Trapattoni","Otto Rehhagel","Udo Lattek"],a:1},
+    {q:"Which club does Thomas Müller represent?",o:["Borussia Dortmund","Schalke 04","Bayern Munich","Bayer Leverkusen"],a:2},
+    {q:"Which Bundesliga player won the Ballon d'Or in 2013?",o:["Arjen Robben","Franck Ribéry","Robert Lewandowski","Thomas Müller"],a:1},
+    {q:"In which year did Pep Guardiola begin his Bayern Munich tenure?",o:["2012","2013","2014","2015"],a:1},
+    {q:"Which club was Bayern Munich's opponent in the 2013 Champions League Final (a 'home final' in Munich)?",o:["Real Madrid","Chelsea","Juventus","Borussia Dortmund"],a:3},
+    {q:"Who holds the Bundesliga record for most assists in a single season?",o:["Robert Lewandowski","Thomas Müller","Serge Gnabry","Thiago"],a:1},
+    {q:"Which former Bundesliga star was nicknamed 'Der Kaiser'?",o:["Franz Beckenbauer","Lothar Matthäus","Uwe Seeler","Berti Vogts"],a:0},
+    {q:"Which club won the Bundesliga most recently before Bayer Leverkusen's 2024 title — and who was it?",o:["Dortmund 2023","Bayern Munich 2023","RB Leipzig 2023","Freiburg 2023"],a:1},
+    {q:"What year did Hansi Flick lead Bayern to a sextuple?",o:["2018","2019","2020","2021"],a:2},
+    {q:"Which club does the Bundesliga's record audience watch — the top-attended club?",o:["Schalke","Bayern Munich","Borussia Dortmund","Hamburg"],a:2},
+    {q:"What record did Robert Lewandowski beat in September 2021 vs Wolfsburg?",o:["Most goals in a season","Gerd Müller's single-season record (40) with his 41st goal","Most hat-tricks","Fastest Bundesliga goal"],a:1},
+    {q:"Which club is nicknamed 'Die Schwarzgelben' (The Black and Yellows)?",o:["Borussia Dortmund","Borussia Mönchengladbach","Dynamo Dresden","Eintracht Frankfurt"],a:0},
+    {q:"Which Bundesliga striker won the Champions League with Liverpool but also played in Germany?",o:["Karl-Heinz Rummenigge","Emile Heskey","Dietmar Hamann","Markus Babbel"],a:2},
+    {q:"Which Bundesliga club came closest to the Champions League in 2023, reaching the final?",o:["Bayern Munich","RB Leipzig","Borussia Dortmund","Bayer Leverkusen"],a:2},
+    {q:"Which Bundesliga player was nicknamed 'Bomber der Nation'?",o:["Uwe Seeler","Karl-Heinz Rummenigge","Gerd Müller","Lothar Matthäus"],a:2},
+    {q:"Which club has won the DFB-Pokal (German Cup) the most times?",o:["Borussia Dortmund","Werder Bremen","Bayern Munich","Schalke 04"],a:2},
+    {q:"What nationality is former Dortmund legend Łukasz Piszczek?",o:["Czech","Polish","Slovak","Croatian"],a:1},
+    {q:"Who was the first player to win the Bundesliga top scorer award five times?",o:["Robert Lewandowski","Gerd Müller","Klaus Fischer","Jupp Heynckes"],a:1},
+    {q:"In what league position did newly promoted Hoffenheim stun Germany in 2007–08?",o:["Champions League spot","7th place","Relegated","DFB-Pokal runners-up"],a:0},
+    {q:"Which club does Florian Wirtz represent?",o:["Bayern Munich","RB Leipzig","Bayer Leverkusen","Borussia Dortmund"],a:2},
+    {q:"Who won the Bundesliga Player of the Year award in the inaugural 2023–24 season (Kicker magazine)?",o:["Florian Wirtz","Granit Xhaka","Harry Kane","Xabi Alonso"],a:0},
+    {q:"In what season did Borussia Dortmund go unbeaten at home for an entire Bundesliga campaign?",o:["2001–02","2010–11","2011–12","2012–13"],a:2},
+    {q:"Which Bundesliga club is based in Leverkusen, a city famous for its chemical industry?",o:["RB Leipzig","Bayer Leverkusen","Hoffenheim","Augsburg"],a:1},
+    {q:"What nationality is longtime Bundesliga goalkeeper Oliver Kahn?",o:["Austrian","German","Swiss","Dutch"],a:1},
+    {q:"Who was Dortmund's manager when they won back-to-back Bundesliga titles in 2011 and 2012?",o:["Ottmar Hitzfeld","Thomas Tuchel","Jürgen Klopp","Peter Bosz"],a:2},
+    {q:"Which club did Harry Kane join in the summer of 2023?",o:["Borussia Dortmund","RB Leipzig","Bayern Munich","Bayer Leverkusen"],a:2},
+    {q:"How many goals did Harry Kane score in his debut Bundesliga season (2023–24)?",o:["32","33","34","36"],a:2},
+    {q:"Which Bundesliga club plays at the Europa Park Stadion in Freiburg?",o:["Eintracht Frankfurt","SC Freiburg","VfB Stuttgart","TSG Hoffenheim"],a:1},
+    {q:"Which Bundesliga coach famously wore all-black and revolutionized German pressing football?",o:["Hansi Flick","Ralf Rangnick","Thomas Tuchel","Julian Nagelsmann"],a:1},
+    {q:"Who is the longest-serving Bundesliga manager in history?",o:["Udo Lattek","Hubert Nothdurft","Helmut Schön","Ernst Happel"],a:0},
+    {q:"Which season did Werder Bremen last win the Bundesliga?",o:["1999–2000","2002–03","2003–04","2005–06"],a:2},
+    {q:"What was the Bundesliga's record transfer fee paid for a player within Germany?",o:["Jamal Musiala €100m to Real Madrid","Florian Wirtz, €150m to Bayern","Mats Hummels to Bayern","Robert Lewandowski to Barcelona"],a:1},
+    {q:"Which Bundesliga team wears a red bull-themed kit?",o:["FC Augsburg","1. FC Nürnberg","RB Leipzig","FC Ingolstadt"],a:2},
+    {q:"Which famous German winger played for Bayern Munich and scored in the 2013 CL Final?",o:["Franck Ribéry","Arjen Robben","Serge Gnabry","Kingsley Coman"],a:1},
+    {q:"What is unique about SpVgg Greuther Fürth in Bundesliga history?",o:["Oldest club","Never been relegated","Original founding member","Has the longest name"],a:2},
+    {q:"Who is Eintracht Frankfurt's most famous striker of recent times, sold to Real Madrid?",o:["Luka Jović","André Silva","Sebastien Haller","Bas Dost"],a:0},
+    {q:"Who holds the record for most Bundesliga goals in a calendar year (40 in 1972)?",o:["Robert Lewandowski","Uwe Seeler","Gerd Müller","Karl-Heinz Rummenigge"],a:2},
+    {q:"Which Bundesliga club was recently promoted and caused one of the league's biggest upsets beating Bayern?",o:["Darmstadt 98","FC Heidenheim","Greuther Fürth","Jahn Regensburg"],a:1},
+    {q:"In what city does Bayer Leverkusen play?",o:["Dortmund","Cologne","Leverkusen","Düsseldorf"],a:2},
+    {q:"Who scored the most goals for Germany AND in the Bundesliga — Gerd Müller — how many international goals?",o:["64","68","72","75"],a:1},
+    {q:"What major signing did Bayern Munich make from Liverpool in 2022?",o:["Virgil van Dijk","Thiago","Sadio Mané","Naby Keïta"],a:2},
+    {q:"Which Bundesliga team plays at the Mercedes-Benz Arena?",o:["VfL Wolfsburg","Eintracht Frankfurt","VfB Stuttgart","Schalke 04"],a:2},
+    {q:"What are the team colours of Schalke 04?",o:["Red and black","Blue and white","Yellow and black","Green and white"],a:1},
+    {q:"Which Bundesliga club finished runners-up in the 2022–23 season behind Bayern Munich?",o:["Borussia Dortmund","RB Leipzig","Bayer Leverkusen","Eintracht Frankfurt"],a:1},
+    {q:"What is the Bundesliga's main trophy called?",o:["The Schale (Bowl)","The Meisterschale","The Gold Cup","The Bundespokal"],a:1},
+    {q:"Who scored Dortmund's famous goal in the 2024 Champions League semi-final to knock PSG?",o:["Marco Reus","Niclas Füllkrug","Jadon Sancho","Julian Brandt"],a:1},
+    {q:"Which German club caused a sensation reaching the 2022 Europa League final?",o:["Bayer Leverkusen","RB Leipzig","Eintracht Frankfurt","Wolfsburg"],a:2},
+    {q:"Who won the Bundesliga's 'Golden Boot' in 2022–23?",o:["Christopher Nkunku","Harry Kane","Erling Haaland","Marcus Thuram"],a:0},
+    {q:"Which Bundesliga club has the nickname 'Die Roten' (The Reds)?",o:["Bayern Munich","Stuttgart","Kaiserslautern","Augsburg"],a:0},
+    {q:"Who was the first player to score 500 Bundesliga career goals?",o:["Gerd Müller","Robert Lewandowski","Klaus Fischer","Uwe Seeler"],a:0},
+  ],
+
+  'la-liga': [
+    {q:"Who has won the most La Liga titles in history?",o:["Atletico Madrid","Valencia","Real Madrid","Barcelona"],a:2},
+    {q:"Who is La Liga's all-time top scorer?",o:["Karim Benzema","Cristiano Ronaldo","Lionel Messi","Raúl"],a:2},
+    {q:"Which club has the famous 'Galácticos' policy of signing global superstars?",o:["Barcelona","Real Madrid","Atlético Madrid","Sevilla"],a:1},
+    {q:"In which city is Atlético Madrid's stadium (Wanda Metropolitano) located?",o:["Seville","Valencia","Madrid","Barcelona"],a:2},
+    {q:"Which Spanish club is known as 'Los Colchoneros' (The Mattress Makers)?",o:["Real Madrid","Atlético Madrid","Real Sociedad","Celta Vigo"],a:1},
+    {q:"Who managed Barcelona's historic 2008–09 Treble-winning squad?",o:["Johan Cruyff","Pep Guardiola","Frank Rijkaard","Ernesto Valverde"],a:1},
+    {q:"Which player scored 50 La Liga goals in a single season (2011–12)?",o:["Cristiano Ronaldo","Lionel Messi","David Villa","Fernando Torres"],a:1},
+    {q:"What is the name of Real Madrid's stadium?",o:["Camp Nou","Vicente Calderón","Estadio Bernabéu","Mestalla"],a:2},
+    {q:"Which club plays at the Mestalla stadium?",o:["Villarreal","Valencia","Real Betis","Sevilla"],a:1},
+    {q:"Which player won the most Pichichi (top scorer) trophies in La Liga?",o:["Telmo Zarra","Cristiano Ronaldo","Lionel Messi","Hugo Sánchez"],a:2},
+    {q:"What is the name of the fierce rivalry between Real Madrid and Barcelona?",o:["El Gran Derbi","El Clásico","La Batalla","El Derby"],a:1},
+    {q:"Who scored the winning goal for Spain in the 2010 World Cup Final?",o:["David Villa","Fernando Torres","Andrés Iniesta","Xavi"],a:2},
+    {q:"Which legendary goalkeeper played over 700 games for Real Madrid?",o:["Iker Casillas","Víctor Valdés","José Ángel Iribar","Andoni Zubizarreta"],a:0},
+    {q:"Which club did Cristiano Ronaldo join after leaving Real Madrid?",o:["Paris Saint-Germain","Manchester United","Al Nassr","Juventus"],a:3},
+    {q:"How many consecutive La Liga titles did Barcelona win from 2009 to 2011?",o:["2","3","4","5"],a:0},
+    {q:"Who was the first foreign player to win the Pichichi trophy in La Liga?",o:["Alfredo Di Stéfano","Johan Cruyff","Ronaldo Nazário","Gary Lineker"],a:0},
+    {q:"Which season did Messi win his record 8th Ballon d'Or?",o:["2019","2021","2023","2022"],a:2},
+    {q:"Who scored the famous 'Panenka' penalty in the 2008 Euro Final?",o:["Xabi Alonso","Fernándo Torres","Cesc Fàbregas","David Villa"],a:2},
+    {q:"Which club has won the most Copa del Rey trophies?",o:["Real Madrid","Athletic Club Bilbao","Barcelona","Atletico Madrid"],a:2},
+    {q:"What was notable about Athletic Club Bilbao's unique transfer policy?",o:["Only sign Spanish players","Only sign Basque players","Never buy players","Only develop youth"],a:1},
+    {q:"Who was Real Madrid's president who initiated the Galácticos era in 2000?",o:["Ramón Calderón","Florentino Pérez","Lorenzo Sanz","Emilio Butragueño"],a:1},
+    {q:"In which year did Alfredo Di Stéfano win his last European Cup with Real Madrid?",o:["1958","1960","1962","1964"],a:1},
+    {q:"Who is La Liga's record appearance holder (for most games played)?",o:["Sergio Ramos","Andoni Zubizarreta","Iker Casillas","Raúl"],a:1},
+    {q:"Which club won La Liga in 2020–21, breaking Real Madrid and Barcelona's duopoly?",o:["Sevilla","Real Sociedad","Atlético Madrid","Villarreal"],a:2},
+    {q:"Which La Liga club won the Europa League in 2020–21?",o:["Sevilla","Atlético Madrid","Villarreal","Valencia"],a:2},
+    {q:"Who scored Real Madrid's last-minute Champions League semi-final goal against Man City in 2022?",o:["Karim Benzema","Rodrygo","Luka Modrić","Vinicius Jr."],a:1},
+    {q:"Which stadium is being renovated and renamed the 'Cívitas Metropolitano'?",o:["Camp Nou","Estadio Bernabéu","Wanda Metropolitano","Mestalla"],a:2},
+    {q:"Which player won the Ballon d'Or in 2022?",o:["Kylian Mbappé","Erling Haaland","Lionel Messi","Karim Benzema"],a:3},
+    {q:"Who managed Real Madrid during their 2021–22 Champions League-winning season?",o:["Zinedine Zidane","José Mourinho","Carlo Ancelotti","Julen Lopetegui"],a:2},
+    {q:"Which club is known as 'El Submarino Amarillo' (The Yellow Submarine)?",o:["Cadiz","Villarreal","Las Palmas","Celta Vigo"],a:1},
+    {q:"Who holds the record for most assists in a single La Liga season?",o:["Xavi","Lionel Messi","Isco","Cesc Fàbregas"],a:1},
+    {q:"Which Real Madrid striker scored 104 La Liga goals — fourth all-time at the club?",o:["Raúl","Butragueño","Hugo Sánchez","Fernando Morientes"],a:0},
+    {q:"In which city is Sevilla FC located?",o:["Madrid","Seville","Valencia","Granada"],a:1},
+    {q:"Who scored Barcelona's third goal in their iconic 6-1 comeback against PSG in the 2016–17 UCL?",o:["Neymar","Sergi Roberto","Luis Suárez","Messi"],a:1},
+    {q:"Which La Liga club is nicknamed 'Los Blancos'?",o:["Celta Vigo","Real Madrid","Real Sociedad","Real Zaragoza"],a:1},
+    {q:"Who broke Raúl's all-time La Liga goal record?",o:["Fernando Torres","Cristiano Ronaldo","Lionel Messi","David Villa"],a:2},
+    {q:"How many Ballon d'Or awards did Messi win during his time at Barcelona?",o:["5","6","7","8"],a:2},
+    {q:"Which player was involved in the infamous 'Hand of God' — and later played in La Liga?",o:["Diego Maradona","Ronald Koeman","Bebeto","Zlatan Ibrahimović"],a:0},
+    {q:"What year did Ronaldo join Real Madrid for a then world-record fee?",o:["2007","2008","2009","2010"],a:2},
+    {q:"Who beat Real Madrid in the 2016 Copa del Rey Final?",o:["Sevilla","Atlético Madrid","Deportivo","Barcelona"],a:3},
+    {q:"Which La Liga legend has the nickname 'El Mágico'?",o:["Ronaldinho","Míchel","Juan Román Riquelme","Cesc Fàbregas"],a:0},
+    {q:"Who was the manager of Atletico Madrid when they won La Liga in 2013–14?",o:["Luis Aragonés","Gregorio Manzano","Diego Simeone","Quique Sánchez Flores"],a:2},
+    {q:"Which player won the 2023 Pichichi (La Liga top scorer)?",o:["Vinicius Jr.","Robert Lewandowski","Karim Benzema","Joselu"],a:1},
+    {q:"What is the name of Sevilla's stadium?",o:["Sánchez-Pizjuán","Mestalla","Martínez Valero","La Cerámica"],a:0},
+    {q:"Who is the Spanish international nicknamed 'Don Andres' for his elegant midfield play?",o:["Xavi","Cesc Fàbregas","Andrés Iniesta","Juan Mata"],a:2},
+    {q:"What season did Real Madrid last win the La Liga title?",o:["2021–22","2022–23","2023–24","2020–21"],a:2},
+    {q:"Which club holds the record for the biggest La Liga win — 13-0?",o:["Real Madrid","Barcelona","Atletico Madrid","Athletic Bilbao"],a:0},
+    {q:"Who is the youngest ever La Liga scorer?",o:["Pedri","Lamine Yamal","Gavi","Ansu Fati"],a:1},
+    {q:"Which former La Liga player became the USA national team's first-choice striker?",o:["Jozy Altidore","Clint Dempsey","Christian Pulisic","Carlos Bocanegra"],a:2},
+    {q:"Who was Barcelona's first-choice goalkeeper during their 2009–11 double La Liga winning period?",o:["Marc-André ter Stegen","Claudio Bravo","Víctor Valdés","José Pinto"],a:2},
+    {q:"Which La Liga club signed Robert Lewandowski from Bayern Munich in 2022?",o:["Real Madrid","Atletico Madrid","Sevilla","Barcelona"],a:3},
+    {q:"Who is the all-time top scorer in El Clásico?",o:["Lionel Messi","Alfredo Di Stéfano","Cristiano Ronaldo","Raúl"],a:0},
+    {q:"Which city is home to both Sevilla FC and Real Betis?",o:["Valencia","Seville","Granada","Málaga"],a:1},
+    {q:"Who scored Barcelona's dramatic last-gasp goal to win 3-2 at the Bernabéu in 2017?",o:["Neymar","Piqué","Messi","Suárez"],a:2},
+    {q:"What was the controversial 'tiki-taka' style most associated with?",o:["Real Madrid under Mourinho","Spain and Barcelona under Guardiola","Atletico under Simeone","Valencia under Benítez"],a:1},
+    {q:"Which Spaniard holds the record for most World Cup appearances as captain?",o:["Iker Casillas","Xavi","Andrés Iniesta","Fernando Torres"],a:0},
+    {q:"Who joined Atletico Madrid from Chelsea in 2023?",o:["Mason Mount","Conor Gallagher","Alvaro Morata","Marcos Alonso"],a:1},
+    {q:"Which player was controversially denied a goal by VAR in the 2019 Copa del Rey final?",o:["Vidal","Messi","Dembélé","Griezmann"],a:3},
+    {q:"What is the name of Athletic Club Bilbao's stadium?",o:["Anoeta","San Mamés","Mestalla","El Madrigal"],a:1},
+    {q:"Which La Liga manager is known for his 'partido a partido' (game by game) philosophy?",o:["Pep Guardiola","Luis Enrique","Diego Simeone","Unai Emery"],a:2},
+    {q:"Who scored the first hat-trick in an El Clásico at the Camp Nou?",o:["Ronaldo","Messi","Di Stéfano","Puskas"],a:2},
+    {q:"Which La Liga club won the Europa Conference League in 2023?",o:["Sevilla","Atletico Madrid","Real Betis","Villarreal"],a:2},
+    {q:"How many times has Real Madrid won the Champions League (as of 2024)?",o:["12","13","14","15"],a:2},
+    {q:"Who won La Liga's 2023–24 player of the year award?",o:["Lamine Yamal","Vinicius Jr.","Pedri","Bellingham"],a:1},
+    {q:"What was the name of Real Madrid's iconic centre-back pairing with Ramos and...?",o:["Pepe","Varane","Piqué","Albiol"],a:1},
+    {q:"Which club did Xavi manage before returning to Barcelona as manager?",o:["Qatar national team","Barcelona B","Al-Sadd","Manchester City"],a:2},
+    {q:"Who is the current club president of Barcelona?",o:["Joan Laporta","Sandro Rosell","Josep Maria Bartomeu","Victor Font"],a:0},
+    {q:"Which La Liga team famously went 11 seasons without relegation, then dropped to the second division?",o:["Espanyol","Deportivo La Coruña","Real Valladolid","Celta Vigo"],a:1},
+    {q:"Who scored Real Madrid's winning penalty in the 2016 Champions League Final?",o:["Cristiano Ronaldo","Sergio Ramos","Karim Benzema","Gareth Bale"],a:0},
+    {q:"Who won the 2024–25 La Liga title?",o:["Real Madrid","Atletico Madrid","Barcelona","Villarreal"],a:0},
+    {q:"Which star was controversial in Barcelona's transfer from Atletico Madrid in 2019?",o:["Antoine Griezmann","João Felix","Saúl","Diego Costa"],a:0},
+    {q:"Sergio Ramos spent how many years at Real Madrid?",o:["14","15","16","17"],a:2},
+    {q:"In what year did Barcelona move to Camp Nou?",o:["1953","1957","1965","1970"],a:1},
+    {q:"Which Basque club stunned Real Madrid in the 2024 Copa del Rey final?",o:["Real Sociedad","Athletic Club Bilbao","Osasuna","Deportivo Alavés"],a:1},
+    {q:"Who is the Brazilian winger nicknamed 'Vini Jr.' currently at Real Madrid?",o:["Rodrygo","Vinícius Júnior","Militão","Endrick"],a:1},
+    {q:"What nationality is Real Madrid captain Luka Modrić?",o:["Serbian","Bosnian","Croatian","Slovenian"],a:2},
+    {q:"Which La Liga stadium is currently undergoing its biggest-ever renovation?",o:["Camp Nou","Estadio Bernabéu","Mestalla","Wanda Metropolitano"],a:0},
+  ],
+
+  'world-cup': [
+    {q:"Which country has won the most FIFA World Cups?",o:["Germany","Italy","Argentina","Brazil"],a:3},
+    {q:"Who is the all-time top scorer in World Cup history?",o:["Pelé","Miroslav Klose","Ronaldo Nazário","Just Fontaine"],a:1},
+    {q:"Which country hosted the first ever FIFA World Cup in 1930?",o:["Brazil","Italy","Uruguay","Argentina"],a:2},
+    {q:"Who won the 2022 FIFA World Cup?",o:["France","Brazil","Argentina","England"],a:2},
+    {q:"Which player scored the winning penalty in the 2022 World Cup Final?",o:["Lionel Messi","Kylian Mbappé","Gonzalo Montiel","Leandro Paredes"],a:2},
+    {q:"Who scored the famous 'Hand of God' goal in the 1986 World Cup?",o:["Diego Maradona","Pelé","Ronaldinho","Zidane"],a:0},
+    {q:"In which year did England win the World Cup?",o:["1958","1962","1966","1970"],a:2},
+    {q:"How many World Cup goals did Just Fontaine score in a single tournament (1958)?",o:["11","12","13","14"],a:2},
+    {q:"Which tournament saw the greatest ever upset — USA 1-0 England in 1950?",o:["1946","1950","1954","1958"],a:1},
+    {q:"Who scored a hat-trick in the 2022 World Cup Final?",o:["Lionel Messi","Kylian Mbappé","Olivier Giroud","Antoine Griezmann"],a:1},
+    {q:"Which nation was the first to win the World Cup on home soil?",o:["Brazil","Italy","Uruguay","England"],a:2},
+    {q:"Which goalkeeper saved Baggio's penalty in the 1994 World Cup Final?",o:["Jorge Campos","Marcos","Claudio Taffarel","Andrés Cantor"],a:2},
+    {q:"Who was the top scorer at the 2018 World Cup?",o:["Lionel Messi","Cristiano Ronaldo","Harry Kane","Antoine Griezmann"],a:2},
+    {q:"Which country lost three consecutive World Cup finals (1974, 1978, 1982)?",o:["Netherlands","West Germany","Brazil","Argentina"],a:0},
+    {q:"Who scored Brazil's fifth and winning goal in the 2002 World Cup Final against Germany?",o:["Rivaldo","Ronaldo","Ronaldinho","Bebeto"],a:1},
+    {q:"How many times has Brazil won the World Cup?",o:["3","4","5","6"],a:2},
+    {q:"Which World Cup saw Germany beat Brazil 7-1 on home soil?",o:["2010","2014","2018","2006"],a:1},
+    {q:"Who scored the 'Goal of the Century' at the 1986 World Cup?",o:["Roberto Baggio","Diego Maradona","Pelé","Zidane"],a:1},
+    {q:"Which player has appeared in the most World Cup matches?",o:["Lothar Matthäus","Pelé","Paolo Maldini","Mia Hamm"],a:0},
+    {q:"Which World Cup had no red cards throughout the entire tournament?",o:["1958","1962","1966","1974"],a:1},
+    {q:"Which country won the 2010 World Cup?",o:["Brazil","Netherlands","Germany","Spain"],a:3},
+    {q:"Who scored in the 2010 World Cup Final?",o:["Fernando Torres","David Villa","Andrés Iniesta","Xabi Alonso"],a:2},
+    {q:"Which team was involved in 'The Miracle of Berne' in 1954?",o:["West Germany vs Hungary","Brazil vs Sweden","Uruguay vs England","France vs Italy"],a:0},
+    {q:"What is the mascot of the 1966 World Cup?",o:["Juanito","Tip and Tap","World Cup Willie","Goleo"],a:2},
+    {q:"Which nation scored nine goals in one World Cup game in 1954?",o:["Brazil","Hungary","West Germany","Austria"],a:1},
+    {q:"Who was the youngest player ever to appear in a World Cup?",o:["Pelé","Norman Whiteside","Gigi Riva","Cesc Fàbregas"],a:1},
+    {q:"Which country has hosted the World Cup twice?",o:["Brazil","Argentina","Italy","Mexico"],a:3},
+    {q:"Who scored Argentina's winning goal in the 1986 World Cup Final?",o:["Jorge Valdano","José Luis Brown","Jorge Burruchaga","Diego Maradona"],a:2},
+    {q:"What colour shirt did England wear in the 1966 World Cup Final?",o:["White","Red","Blue","Yellow"],a:1},
+    {q:"Ronaldo Nazário scored how many goals at the 2002 World Cup?",o:["6","7","8","9"],a:2},
+    {q:"Which African nation first reached the World Cup quarter-finals in 1990?",o:["Nigeria","Cameroon","Senegal","Ivory Coast"],a:1},
+    {q:"Which player has scored in the most different World Cup tournaments?",o:["Uwe Seeler","Pelé","Cristiano Ronaldo","Lionel Messi"],a:0},
+    {q:"In which country was the 2002 World Cup co-hosted?",o:["Japan and China","Japan and South Korea","China and South Korea","China and Australia"],a:1},
+    {q:"Who did Germany beat in the 2014 World Cup Final?",o:["Brazil","Netherlands","Argentina","Italy"],a:2},
+    {q:"Which player was sent off in a World Cup Final — once by France, once himself?",o:["Zidane in 2006","Cantona in 1994","Ronaldo in 2010","Buffon in 2006"],a:0},
+    {q:"How many World Cups did Pelé win?",o:["1","2","3","4"],a:2},
+    {q:"Which team was undefeated in World Cup penalty shootouts until 2022 (Germany)?",o:["Argentina","Spain","Germany","Italy"],a:2},
+    {q:"Who scored a bicycle kick goal for Wales against Iran in the 2022 World Cup?",o:["Gareth Bale","Kieffer Moore","Ben Davies","Aaron Ramsey"],a:1},
+    {q:"Morocco became the first African nation to reach the World Cup semi-finals in what year?",o:["2010","2018","2022","2014"],a:2},
+    {q:"Which player won the Golden Boot AND Golden Ball at the 2022 World Cup?",o:["Kylian Mbappé","Lionel Messi","Emi Martínez","Julián Álvarez"],a:1},
+    {q:"What was the final score of the famous 1954 World Cup Final ('The Miracle of Berne')?",o:["3-1","3-2","4-2","5-2"],a:2},
+    {q:"Who holds the record for most World Cup final appearances as a nation?",o:["Brazil","Germany","Italy","Argentina"],a:1},
+    {q:"Which goalkeeper won the Golden Glove at the 2022 World Cup?",o:["Alisson","Dominik Livaković","Emiliano Martínez","Thibaut Courtois"],a:2},
+    {q:"Which World Cup featured the most goals per game on average (5.38, in 1954)?",o:["1930","1954","1958","1970"],a:1},
+    {q:"Who was the first player to score in four World Cups?",o:["Uwe Seeler","Pelé","Gerd Müller","Eusébio"],a:0},
+    {q:"Which country hosted the 2018 World Cup?",o:["China","Russia","Qatar","Germany"],a:1},
+    {q:"What year will the USA, Canada and Mexico host the World Cup?",o:["2026","2030","2034","2028"],a:0},
+    {q:"Who was the first goalkeeper to save three penalties in a World Cup shootout?",o:["Gordon Banks","Sébastien Frey","Ricardo","Iker Casillas"],a:2},
+    {q:"Which nation beat Spain in the Round of 16 at the 2022 World Cup?",o:["Japan","Morocco","France","Brazil"],a:1},
+    {q:"Who was Italy's goalkeeper in their 2006 World Cup-winning team?",o:["Gianluigi Buffon","Sebastiano Rossi","Angelo Peruzzi","Dino Zoff"],a:0},
+    {q:"What colour cards did the World Cup introduce in 1970?",o:["Red and Yellow","Orange and Green","Red and Blue","Yellow and Black"],a:0},
+    {q:"Who scored the only goal in the 1994 World Cup Final?",o:["Nobody — it was 0-0","Romário","Roberto Baggio","Mauro Silva"],a:0},
+    {q:"What was unique about Eusébio at the 1966 World Cup?",o:["First African-born star","Top scorer with 9 goals","First to score twice in one final","First player sent off"],a:1},
+    {q:"Which World Cup saw England reach the semi-finals for the first time since 1966?",o:["1986","1990","1994","1998"],a:1},
+    {q:"How many goals were scored in total at the 2022 World Cup in Qatar?",o:["160","172","179","185"],a:1},
+    {q:"Who scored England's goal in their famous 2018 quarter-final win over Sweden?",o:["Harry Kane","Jesse Lingard","Jordan Henderson","Dele Alli"],a:3},
+    {q:"Which player wore the famous number 10 jersey and captained Brazil in five World Cups?",o:["Ronaldo","Zico","Pelé","Ronaldinho"],a:2},
+    {q:"Which team lost 8-3 to Hungary in the 1954 World Cup group stage?",o:["West Germany","France","England","Belgium"],a:2},
+    {q:"Which nation famously beat Brazil 1-0 in the 1950 World Cup Final match?",o:["England","Spain","Uruguay","Argentina"],a:2},
+    {q:"How old was Pelé when he first won the World Cup?",o:["16","17","18","19"],a:1},
+    {q:"Which team did France beat 4-2 in the 1998 World Cup Final?",o:["Spain","Italy","Brazil","Netherlands"],a:2},
+    {q:"Who scored Germany's famous 2-1 World Cup Final winner against Argentina in 2014?",o:["André Schürrle","Thomas Müller","Toni Kroos","Mario Götze"],a:3},
+    {q:"In which stadium was the 2014 World Cup Final played?",o:["Estádio do Maracanã","Estádio Nacional","Arena Corinthians","Mineirão"],a:0},
+    {q:"How many nations participated in the first World Cup in 1930?",o:["13","14","15","16"],a:0},
+    {q:"Which nation won three consecutive World Cups (1958, 1962, 1970)?",o:["Argentina","Germany","Brazil","Italy"],a:2},
+    {q:"What was the score of the 7-1 Germany vs Brazil game in 2014?",o:["7-1","7-0","6-0","5-0"],a:0},
+    {q:"Who managed the England team that reached the 2018 World Cup semi-finals?",o:["Roy Hodgson","Glenn Hoddle","Gareth Southgate","Sven-Göran Eriksson"],a:2},
+    {q:"Who were the two teams that played in the 2006 World Cup Final?",o:["Germany vs Italy","Italy vs France","France vs Portugal","Italy vs Spain"],a:1},
+    {q:"Which country qualified for every World Cup until 2018 but has never won it?",o:["Netherlands","Scotland","Mexico","England"],a:0},
+    {q:"Who scored the winning goal in the 1994 World Cup Final shootout — oh wait, what happened in that final?",o:["Italy won on penalties","Brazil won on penalties","It was a draw","Extra time winner"],a:1},
+    {q:"In what country was Diego Maradona born?",o:["Uruguay","Chile","Paraguay","Argentina"],a:3},
+    {q:"Which World Cup mascot was a lion named 'Goleo VI'?",o:["France 1998","Korea/Japan 2002","Germany 2006","South Africa 2010"],a:2},
+    {q:"What was unique about the 2022 World Cup being held in Qatar?",o:["First in the Middle East","First in winter","First with 32 teams","Both A and B"],a:3},
+    {q:"Who was Spain's golden generation goalkeeper in 2010, who saved Robben's one-on-one?",o:["David de Gea","Pepe Reina","Iker Casillas","Víctor Valdés"],a:2},
+    {q:"In the 2018 World Cup, which keeper saved three penalties in shootout vs Croatia?",o:["Jordan Pickford","Kasper Schmeichel","Thibaut Courtois","Iker Casillas"],a:0},
+  ],
+
+  'euros': [
+    {q:"Which country has won the European Championship the most times?",o:["Germany","France","Spain","Italy"],a:2},
+    {q:"Who won Euro 2020 (played in 2021)?",o:["England","France","Portugal","Italy"],a:3},
+    {q:"Which country hosted the first European Championship in 1960?",o:["France","England","Sweden","West Germany"],a:0},
+    {q:"Who won Euro 2024 in Germany?",o:["England","France","Spain","Germany"],a:2},
+    {q:"Who scored the winning goal in the Euro 2024 final?",o:["Lamine Yamal","Dani Olmo","Nico Williams","Mikel Oyarzabal"],a:3},
+    {q:"Greece famously won Euro 2004 — who was their manager?",o:["Takis Lemonis","Nikos Aleferis","Sokratis Papaioannis","Otto Rehhagel"],a:3},
+    {q:"Which player won the Golden Boot at Euro 2020?",o:["Harry Kane","Cristiano Ronaldo","Romelu Lukaku","Patrik Schick"],a:1},
+    {q:"Who scored the famous last-minute winner for France in Euro 2000 against Italy?",o:["Zidane","Trezeguet","Vieira","Thierry Henry"],a:1},
+    {q:"In which year did Denmark famously win the European Championship having not even qualified originally?",o:["1988","1992","1996","2000"],a:1},
+    {q:"Which player scored the 'bicycle kick' goal at Euro 2016 for Wales?",o:["Gareth Bale","Aaron Ramsey","Hal Robson-Kanu","Neil Taylor"],a:0},
+    {q:"Who is the all-time top scorer in European Championship history?",o:["Cristiano Ronaldo","Michel Platini","Alan Shearer","Zlatan Ibrahimovic"],a:0},
+    {q:"Who scored the golden goal for France in the Euro 2000 semi-final?",o:["Zidane","Thierry Henry","Robert Pires","Sylvain Wiltord"],a:0},
+    {q:"Which country co-hosted Euro 2000?",o:["France and Spain","Belgium and Netherlands","Germany and Austria","Poland and Ukraine"],a:1},
+    {q:"How many tournaments did Spain win in a row between 2008 and 2012?",o:["2","3","4","5"],a:1},
+    {q:"Who was the manager of Italy's Euro 2020-winning team?",o:["Antonio Conte","Fabio Cannavaro","Roberto Mancini","Luciano Spalletti"],a:2},
+    {q:"Which player scored in both the semi-final and final of Euro 2020 for Italy?",o:["Federico Chiesa","Lorenzo Insigne","Gianluigi Donnarumma","Leonardo Bonucci"],a:0},
+    {q:"England lost the Euro 2020 Final on penalties. Who missed the decisive penalty?",o:["Marcus Rashford","Bukayo Saka","Jadon Sancho","Jordan Henderson"],a:1},
+    {q:"Which nation won Euro 1988?",o:["France","Netherlands","Soviet Union","West Germany"],a:1},
+    {q:"What tournament year featured Germany's legendary midfielder Matthäus?",o:["1980","1984","1988","1992"],a:2},
+    {q:"Who scored Spain's winning penalty in the Euro 2008 Final?",o:["Xavi","Cesc Fàbregas","David Villa","Fernando Torres"],a:1},
+    {q:"Which venue hosted the Euro 2020 Final?",o:["Allianz Arena","Stadio Olimpico","Wembley Stadium","Puskas Arena"],a:2},
+    {q:"How many goals did Cristiano Ronaldo score in total at Euro tournaments?",o:["12","14","12","10"],a:1},
+    {q:"Which club did tournament hero Eder (who scored the winning Euro 2016 goal) play for?",o:["Benfica","Sporting","Lille","Swansea City"],a:2},
+    {q:"Who was the first player to score in three different European Championships?",o:["Michel Platini","Nuno Gomes","Jürgen Klinsmann","Zinedine Zidane"],a:1},
+    {q:"Which nation beat the Netherlands 3-0 to eliminate them from Euro 2008?",o:["Germany","Russia","Spain","Italy"],a:1},
+    {q:"What year did the tournament expand to 24 teams?",o:["2012","2014","2016","2018"],a:2},
+    {q:"Which Portuguese striker scored the winning goal in the Euro 2016 final?",o:["Cristiano Ronaldo","Nani","Ricardo Quaresma","Eder"],a:3},
+    {q:"Which team lost the final on home soil at Euro 2016?",o:["Germany","Portugal","France","Belgium"],a:2},
+    {q:"Who scored the only goal of the Euro 1984 final for France?",o:["Jean Tigana","Platini","Dominique Rocheteau","Bruno Bellone"],a:1},
+    {q:"What happened to Cristiano Ronaldo during the Euro 2016 Final?",o:["He scored the winner","He was substituted injured","He missed a penalty","He got sent off"],a:1},
+    {q:"In which city was Euro 2024 hosted for the final?",o:["Munich","Dortmund","Hamburg","Berlin"],a:3},
+    {q:"Who was the top scorer at Euro 2024?",o:["Lamine Yamal","Cody Gakpo","Cristiano Ronaldo","Georges Mikautadze"],a:3},
+    {q:"Who won the Golden Ball at Euro 2024?",o:["Dani Carvajal","Rodrigo","Fabian Ruiz","Dani Olmo"],a:3},
+    {q:"Which country did England beat in their first ever Euro Final in 2021 (Euro 2020)?",o:["Germany","Spain","Italy","France"],a:2},
+    {q:"How did Hungary famously perform at Euro 2016 — despite not qualifying normally?",o:["Won the tournament","Reached the semi-finals","Beat Austria and Portugal in groups","Came last"],a:2},
+    {q:"Which player's goal started the wave of 'golden goals' at Euro 96?",o:["Oliver Bierhoff","Jürgen Klinsmann","Stefan Kuntz","Mehmet Scholl"],a:0},
+    {q:"Which nation famously beat England 1-0 in their opening game at Euro 2000?",o:["Romania","Portugal","Germany","France"],a:1},
+    {q:"What nationality is Ivan Rakitić, who was prominent for Croatia at Euro 2016?",o:["Serbian","Bosnian","Croatian","Slovenian"],a:2},
+    {q:"Which Czech player scored a stunning long-range goal against Germany in Euro 96?",o:["Pavel Nedvěd","Karel Poborský","Patrik Berger","Jan Koller"],a:1},
+    {q:"Which country did Spain beat in the Euro 2012 final — and what was the score?",o:["Italy 4-0","Germany 3-1","Portugal 4-0 pens","France 2-0"],a:0},
+    {q:"Who scored a hat-trick against the USSR in Euro 1984?",o:["Bryan Robson","Michel Platini","Jean-Pierre Papin","Rudi Völler"],a:1},
+    {q:"Which nation won Euro 1976 on home soil?",o:["West Germany","Yugoslavia","Czechoslovakia","Netherlands"],a:2},
+    {q:"Who scored the winner for Chelsea's Didier Drogba... wait, who scored for Portugal vs Spain in Euro 2012 penalties?",o:["Cesc Fàbregas","Bruno Alves","Nani","Cristiano Ronaldo"],a:0},
+    {q:"In Euro 2020 which team shocked Germany 3-2 in a group game?",o:["Portugal","Hungary","France","Belgium"],a:1},
+    {q:"Which team's goalkeeper saved three penalties against England in Euro 2020?",o:["Italy's Gianluigi Donnarumma","Denmark's Kasper Schmeichel","Spain's Unai Simón","Czech Republic's Tomáš Vaclík"],a:0},
+    {q:"Who was the youngest goal scorer in European Championship history before Lamine Yamal?",o:["Renato Sanches","Cesc Fàbregas","Johan Vonlanthen","Wayne Rooney"],a:2},
+    {q:"How old was Lamine Yamal when he scored at Euro 2024 vs France?",o:["16 years, 10 months","17 years","16 years, 8 months","16 years, 362 days"],a:3},
+    {q:"Which player won the Player of the Tournament at Euro 2016?",o:["Éder","Cristiano Ronaldo","Renato Sanches","Pepe"],a:1},
+    {q:"Which host nation was eliminated at Euro 2024 at the quarter-final stage by Spain?",o:["Germany","Poland","France","Belgium"],a:0},
+    {q:"How many goals did Michel Platini score in Euro 1984?",o:["7","8","9","10"],a:2},
+    {q:"In what city was the Euro 2016 final played?",o:["Paris","Lyon","Marseille","Saint-Denis"],a:3},
+    {q:"Which team caused the biggest shock at Euro 2004 — winning the tournament as 80-1 outsiders?",o:["Czech Republic","Greece","Latvia","Croatia"],a:1},
+    {q:"Who scored Germany's winning penalty in the Euro 1996 final against Czech Republic?",o:["Jürgen Klinsmann","Oliver Bierhoff","Matthias Sammer","Mehmet Scholl"],a:1},
+    {q:"Where was Euro 2004 held?",o:["Greece","Portugal","Spain","Italy"],a:1},
+    {q:"Who was the top scorer at Euro 1992?",o:["Dennis Bergkamp","Henrik Larsen","Marco van Basten","Karl-Heinz Riedle"],a:1},
+    {q:"What trophy is awarded to the winner of the European Championship?",o:["Henri Delaunay Trophy","Jules Rimet Trophy","UEFA Champions Trophy","European Nations Cup"],a:0},
+    {q:"Which European country has never qualified for the tournament despite being a major nation?",o:["Norway","Serbia","Switzerland","Luxembourg"],a:0},
+    {q:"Who replaced the injured Ronaldo and scored Portugal's winning goal in Euro 2016?",o:["Ricardo Quaresma","Renato Sanches","Nani","Eder"],a:3},
+    {q:"Which team beat Czechoslovakia in the first European Nations Cup Final?",o:["Yugoslavia","Soviet Union","France","West Germany"],a:1},
+    {q:"Which two nations met in the 2016 Euro semi-final in a repeat of the 1976 final?",o:["Germany and France","Germany and Czechoslovakia","Germany and Portugal","Wales and Portugal"],a:3},
+    {q:"Who was named the goalkeeper of the tournament at Euro 2020?",o:["Kasper Schmeichel","Jordan Pickford","Gianluigi Donnarumma","Thibaut Courtois"],a:2},
+    {q:"Which Euro was the first played in summer, not spring?",o:["1980","1984","1988","1992"],a:0},
+    {q:"Who scored England's solitary goal in Euro 2004 against France in the group stage?",o:["David Beckham","Michael Owen","Frank Lampard","Wayne Rooney"],a:2},
+    {q:"In Euro 2024, which group was Germany in?",o:["Group A","Group B","Group C","Group D"],a:0},
+    {q:"How many stadiums hosted Euro 2024 in Germany?",o:["8","9","10","12"],a:2},
+    {q:"Which Italian was named Euro 2020's best young player?",o:["Gianluigi Donnarumma","Federico Chiesa","Nicolò Barella","Manuel Locatelli"],a:1},
+    {q:"Who did Portugal beat in the semi-final of Euro 2016?",o:["Germany","France","Wales","Belgium"],a:2},
+    {q:"At Euro 2024, which team topped a group containing Spain?",o:["Italy","Croatia","Albania","Spain themselves"],a:3},
+    {q:"Who scored England's equaliser against Italy in the Euro 2020 Final?",o:["Marcus Rashford","Harry Kane","Luke Shaw","Kieran Trippier"],a:2},
+    {q:"Which year did the European Championship change from 'European Nations Cup' to its current name?",o:["1964","1968","1972","1976"],a:1},
+    {q:"In how many matches did Spain go unbeaten in winning Euro 2024?",o:["5","6","7","8"],a:2},
+    {q:"Which Spanish player won the Player of the Tournament at Euro 2024?",o:["Lamine Yamal","Nico Williams","Dani Olmo","Rodrigo"],a:3},
+    {q:"Which country did Scotland famously beat at Euro 1992 to reach the knock-out stages?",o:["Germany","CIS","Netherlands","Sweden"],a:1},
+    {q:"Which player scored the decisive Euro 2008 semi-final goal for Russia vs Netherlands?",o:["Arshavin","Pavlyuchenko","Zhirkov","Semshov"],a:0},
+    {q:"What scoring record did Cristiano Ronaldo set at the Euros?",o:["First to 10 goals","All-time top scorer with 14 goals","Scored in most different editions","Most penalties scored"],a:1},
+  ]
+};
+
+// ============================================================
+// APP STATE
+// ============================================================
+let currentCategory = '';
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let streak = [];
+let bestStreak = 0;
+let tempStreak = 0;
+let totalAnswered = 0;
+let wrongAnswers = 0;
+let bestScores = JSON.parse(localStorage.getItem('wilfBestScores') || '{}');
+
+function updateBestNav() {
+  const vals = Object.values(bestScores);
+  if (vals.length) {
+    document.getElementById('best-score-nav').textContent = Math.max(...vals) + '%';
+  }
+}
+updateBestNav();
+
+function showHome() {
+  hideAll();
+  document.getElementById('home-screen').style.display = 'flex';
+  setActiveNav('nav-home');
+}
+
+function showSelect() {
+  hideAll();
+  document.getElementById('select-screen').style.display = 'block';
+  setActiveNav('nav-quiz');
+}
+
+function showScoreboard() {
+  showSelect();
+}
+
+function hideAll() {
+  ['home-screen','select-screen','quiz-screen','result-screen'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function toggleMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(category) {
+  currentCategory = category;
+  currentQuestions = shuffle(QUESTIONS[category]).slice(0, 20);
+  currentIndex = 0;
+  score = 0;
+  streak = [];
+  bestStreak = 0;
+  tempStreak = 0;
+  totalAnswered = 0;
+  wrongAnswers = 0;
+  answered = false;
+
+  hideAll();
+  document.getElementById('quiz-screen').style.display = 'block';
+  setActiveNav('nav-quiz');
+
+  const labels = {
+    'premier-league': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League',
+    'bundesliga': '🇩🇪 Bundesliga',
+    'la-liga': '🇪🇸 La Liga',
+    'world-cup': '🌍 World Cup',
+    'euros': '🇪🇺 UEFA Euros'
+  };
+  document.getElementById('quiz-cat-label').textContent = labels[category];
+  document.getElementById('q-total').textContent = currentQuestions.length;
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = currentQuestions[currentIndex];
+  const num = currentIndex + 1;
+  const total = currentQuestions.length;
+
+  document.getElementById('q-current').textContent = num;
+  document.getElementById('q-bg-num').textContent = String(num).padStart(2, '0');
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('progress-fill').style.width = ((num - 1) / total * 100) + '%';
+  document.getElementById('progress-label').textContent = `Question ${num} of ${total}`;
+
+  const letters = ['A','B','C','D'];
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedback-bar').className = 'feedback-bar';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('finish-btn').style.display = 'none';
+
+  renderStreak();
+}
+
+function selectAnswer(selected) {
+  if (answered) return;
+  answered = true;
+  totalAnswered++;
+
+  const q = currentQuestions[currentIndex];
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(b => b.disabled = true);
+
+  const correct = selected === q.a;
+  buttons[q.a].classList.add('correct');
+  if (!correct) {
+    buttons[selected].classList.add('wrong');
+    wrongAnswers++;
+    tempStreak = 0;
+    streak.push('miss');
+  } else {
+    score++;
+    tempStreak++;
+    if (tempStreak > bestStreak) bestStreak = tempStreak;
+    streak.push('hit');
+  }
+
+  document.getElementById('score-display').textContent = score;
+
+  const fb = document.getElementById('feedback-bar');
+  if (correct) {
+    fb.className = 'feedback-bar correct-fb show';
+    document.getElementById('feedback-icon').textContent = '✓';
+    document.getElementById('feedback-text').textContent = 'Correct! Well done.';
+  } else {
+    fb.className = 'feedback-bar wrong-fb show';
+    document.getElementById('feedback-icon').textContent = '✗';
+    document.getElementById('feedback-text').textContent = `Incorrect. Answer: ${q.o[q.a]}`;
+  }
+
+  renderStreak();
+
+  const isLast = currentIndex >= currentQuestions.length - 1;
+  if (isLast) {
+    document.getElementById('finish-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('next-btn').style.display = 'inline-flex';
+  }
+}
+
+function renderStreak() {
+  const last10 = streak.slice(-10);
+  const container = document.getElementById('streak-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot';
+    if (i < last10.length) {
+      dot.classList.add(last10[i]);
+      dot.textContent = last10[i] === 'hit' ? '✓' : '✗';
+    }
+    container.appendChild(dot);
+  }
+}
+
+function nextQuestion() {
+  currentIndex++;
+  renderQuestion();
+}
+
+function showResults() {
+  hideAll();
+  document.getElementById('result-screen').style.display = 'block';
+
+  const total = currentQuestions.length;
+  const pct = Math.round(score / total * 100);
+
+  const catKey = currentCategory;
+  if (!bestScores[catKey] || pct > bestScores[catKey]) {
+    bestScores[catKey] = pct;
+    try { localStorage.setItem('wilfBestScores', JSON.stringify(bestScores)); } catch(e){}
+  }
+  updateBestNav();
+
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-score-label').textContent = `Score: ${score} / ${total}`;
+  document.getElementById('res-correct').textContent = score;
+  document.getElementById('res-wrong').textContent = wrongAnswers;
+  document.getElementById('res-streak').textContent = bestStreak;
+
+  let icon, heading, msg;
+  if (pct >= 90) {
+    icon = '🏆'; heading = 'FOOTBALL <span class="accent">GENIUS!</span>';
+    msg = "Outstanding! You're a walking football encyclopedia. The Grand Wilf would be proud.";
+  } else if (pct >= 75) {
+    icon = '⚽'; heading = 'WELL <span class="accent">PLAYED!</span>';
+    msg = "Excellent work — you clearly know your football. A solid result from a serious fan.";
+  } else if (pct >= 50) {
+    icon = '🎯'; heading = 'DECENT <span class="accent">EFFORT!</span>';
+    msg = "A respectable score. Half-time team talk needed — get back out there and improve it!";
+  } else if (pct >= 25) {
+    icon = '💪'; heading = 'KEEP <span class="accent">GOING!</span>';
+    msg = "Tough round, but don't be disheartened. Every legend starts somewhere. Study up!";
+  } else {
+    icon = '📚'; heading = 'STUDY <span class="accent">TIME!</span>';
+    msg = "Football school is calling your name! Brush up on those facts and come back stronger.";
+  }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-heading').innerHTML = heading;
+  document.getElementById('result-message').textContent = msg.replace(/<[^>]+>/g, '');
+  document.getElementById('result-sub').textContent = `${currentCategory.replace(/-/g,' ').toUpperCase()} — Quiz Complete`;
+}
+
+function restartQuiz() {
+  startQuiz(currentCategory);
+}
+
+// Start on home
+showHome();
+</script>
+</body>
+</html>
